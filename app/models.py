@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey,UniqueConstraint
 # from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 # from app.database import Base;
@@ -28,8 +28,6 @@ class Business(Base, AuditMixin):
 
 
 # Table for Symptoms
-
-
 class Symptom(Base, AuditMixin):
     __tablename__ = "symptoms"
 
@@ -55,7 +53,8 @@ class BusinessSymptom(Base, AuditMixin):
 
     # created_at = Column(DateTime, default=func.now(), nullable=False)
     # updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
-
+    __table_args__ = (UniqueConstraint('business_id', 'symptom_code', 'symptom_diagnostic', name='unique_business_symptom'),)
+    
     # Relationships
     business = relationship("Business", back_populates="business_symptoms")
     symptom = relationship("Symptom", back_populates="business_symptoms")

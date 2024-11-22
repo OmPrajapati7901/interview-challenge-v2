@@ -40,7 +40,7 @@ async def import_csv_endpoint(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
     finally:
-        # Cleanup: Remove the temporary file if it exists
+        # Cleanup: Remove the temporary file
         if file_path and os.path.exists(file_path):
             try:
                 os.remove(file_path)
@@ -72,7 +72,7 @@ async def get_symptom_data(
             or_(BusinessSymptom.symptom_diagnostic == symptom_diagnostic, symptom_diagnostic is None),
         )
 
-        # Fetch and construct the results
+        #convert it to JSON type
         results = [
             {
                 "business_id": row[0],
@@ -84,15 +84,12 @@ async def get_symptom_data(
             for row in query.all()
         ]
     except SQLAlchemyError as e:
-        # Log the exception (optional) and return an HTTP 500 response
         print(f"Database error: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while querying the database.")
     except Exception as e:
-        # Handle other exceptions
         print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
     finally:
-        # Ensure the session is always closed
         session.close()
 
     return results
