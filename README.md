@@ -1,4 +1,20 @@
 # AdviNow Interview Challenge
+
+Steps followed to complete this task:
+- Create a virtual environment and install the requirements - "requirements\requirements.txt"
+- Design a database mock up based on the provided data - "app\data\business_symptom_data.csv"
+- Create data models - example with sqlalchemy in "app\models.py"
+- Generate migration script and run migration to create database tables - alembic files provided
+  - To create a migration file: "alembic revision --autogenerate -m some_comment"
+  - To update database with migration file: "alembic upgrade head"
+- Create an endpoint for importing a CSV file into the database
+  - The only requirement is the endpoint requires a CSV file. If needed, other parameters can be used.
+- Create an endpoint that returns business and symptom data
+  - Endpoint should take two optional parameters - business_id & diagnostic
+  - Endpoint should return Business ID, Business Name, Symptom Code, Symptom Name, and Symptom Diagnostic values based on filter
+
+---
+
 This repository will be used as a test case for interview candidates. The application structure is predefined using FastAPI and uvicorn in the "app" directory in the "run.py" module. 
 FastAPI creates API docs automatically, and these can be found at "http://127.0.0.1:8013/docs" when the app is running.
 
