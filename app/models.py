@@ -10,11 +10,7 @@ from settings import DB_USER
 
 Base = declarative_base()
 
-class AuditMixin:
-    created_by = Column(String(100), nullable=False, default=DB_USER)
-    updated_by = Column(String(100), nullable=False, default=DB_USER)
-    created_at = Column(DateTime, nullable=False, default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
+
 
 # Table for Businesses
 class Business(Base):
@@ -22,8 +18,8 @@ class Business(Base):
 
     business_id = Column(Integer, primary_key=True, autoincrement=False)  # No auto-increment to match schema
     business_name = Column(String(255), nullable=False)
-    # created_at = Column(DateTime, default=func.now(), nullable=False)
-    # updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     # Relationship to Business_Symptoms
     business_symptoms = relationship("BusinessSymptom", back_populates="business")
 
