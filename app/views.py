@@ -3,7 +3,7 @@ import csv
 from sqlalchemy.orm import Session
 from app.models import Business, Symptom, BusinessSymptom
 from app.database import engine 
-from app.utils import import_csv  
+from app.utils import import_csv ,  import_csv_per_record
 import os
 router = APIRouter()
 from sqlalchemy import or_
@@ -15,8 +15,9 @@ async def import_csv_endpoint(file: UploadFile = File(...)):
     file_path = None
 
     try:
-        # Dynamically construct the temp directory path
         base_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of this file
+        # print(base_dir)
+        # print(temp_dir)
         temp_dir = os.path.join(base_dir, "temp")  # Reference the 'temp' folder in the same structure
         os.makedirs(temp_dir, exist_ok=True)  # Ensure the temp folder exists
 
@@ -26,17 +27,20 @@ async def import_csv_endpoint(file: UploadFile = File(...)):
             buffer.write(file.file.read())
 
         # Call the CSV import logic
-        import_csv(file_path)
+        # import_csv(file_path)
+
+        # if you want rejection specific to record
+        import_csv_per_record(file_path)
         return {"message": "CSV imported successfully!"}
 
     except FileNotFoundError as fnf_error:
-        print(f"File error: {fnf_error}")
+        # print(f"File error: {fnf_error}")
         raise HTTPException(status_code=500, detail="Failed to create or write to the temporary file.")
     except PermissionError as perm_error:
-        print(f"Permission error: {perm_error}")
+        # print(f"Permission error: {perm_error}")
         raise HTTPException(status_code=500, detail="Permission error while handling the file.")
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        # print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
     finally:
@@ -84,15 +88,17 @@ async def get_symptom_data(
             for row in query.all()
         ]
     except SQLAlchemyError as e:
-        print(f"Database error: {e}")
+        # print(f"Database error: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while querying the database.")
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        # print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
     finally:
         session.close()
 
     return results
+
+
 
 @router.get('/status')
 async def get_status():

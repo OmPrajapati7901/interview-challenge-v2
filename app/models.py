@@ -14,7 +14,7 @@ class AuditMixin:
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
 
-# Table for Businesses
+# Table: Businesses
 class Business(Base, AuditMixin):
     __tablename__ = "businesses"
 
@@ -27,7 +27,7 @@ class Business(Base, AuditMixin):
     business_symptoms = relationship("BusinessSymptom", back_populates="business")
 
 
-# Table for Symptoms
+# Table: Symptoms
 class Symptom(Base, AuditMixin):
     __tablename__ = "symptoms"
 
@@ -42,7 +42,7 @@ class Symptom(Base, AuditMixin):
 
 
 
-# Linking table for Businesses and Symptoms
+# Linking table: Businesses and Symptoms
 class BusinessSymptom(Base, AuditMixin):
     __tablename__ = "business_symptoms"
 

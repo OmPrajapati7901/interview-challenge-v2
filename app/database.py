@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from settings import DB_URL  # Ensure settings.py contains DB_URL
+from settings import DB_URL  
 
 # Create the SQLAlchemy engine
-engine = create_engine(DB_URL, echo=True)  # Set echo=True to log SQL statements
+engine = create_engine(DB_URL, echo=False)  # echo=True to log SQL statements
 
 # Create a session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
