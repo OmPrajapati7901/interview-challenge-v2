@@ -94,6 +94,7 @@ def import_csv(file_path: str):
 
 
 # # if you want rejection specific to record
+
 def import_csv_per_record(file_path: str):
     session = Session(bind=engine)
 
