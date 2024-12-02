@@ -5,9 +5,12 @@ from app.models import Business, Symptom, BusinessSymptom
 from app.database import engine 
 from app.utils import import_csv ,  import_csv_per_record
 import os
-router = APIRouter()
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
+from dotenv import load_dotenv
+load_dotenv()
+
+router = APIRouter()
 
 @router.post("/import-csv")
 async def import_csv_endpoint(file: UploadFile = File(...)):
@@ -15,11 +18,16 @@ async def import_csv_endpoint(file: UploadFile = File(...)):
     file_path = None
 
     try:
-        base_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of this file
+
+        base_dir=os.getenv("BASE_DIR")
+        if not base_dir:
+            raise HTTPException(status_code=500,detail="BASE_DIR is not set")
+        
+        temp_dir = os.path.join(base_dir, "temp") 
+        os.makedirs(temp_dir, exist_ok=True)  
         # print(base_dir)
         # print(temp_dir)
-        temp_dir = os.path.join(base_dir, "temp")  # Reference the 'temp' folder in the same structure
-        os.makedirs(temp_dir, exist_ok=True)  # Ensure the temp folder exists
+        
 
         # Save the file in the temp directory
         file_path = os.path.join(temp_dir, file.filename)
@@ -34,13 +42,10 @@ async def import_csv_endpoint(file: UploadFile = File(...)):
         return {"message": "CSV imported successfully!"}
 
     except FileNotFoundError as fnf_error:
-        # print(f"File error: {fnf_error}")
         raise HTTPException(status_code=500, detail="Failed to create or write to the temporary file.")
     except PermissionError as perm_error:
-        # print(f"Permission error: {perm_error}")
         raise HTTPException(status_code=500, detail="Permission error while handling the file.")
     except Exception as e:
-        # print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
     finally:
@@ -76,7 +81,7 @@ async def get_symptom_data(
             or_(BusinessSymptom.symptom_diagnostic == symptom_diagnostic, symptom_diagnostic is None),
         )
 
-        #convert it to JSON type
+        # convert it to JSON type
         results = [
             {
                 "business_id": row[0],
@@ -88,10 +93,8 @@ async def get_symptom_data(
             for row in query.all()
         ]
     except SQLAlchemyError as e:
-        # print(f"Database error: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while querying the database.")
     except Exception as e:
-        # print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
     finally:
         session.close()
