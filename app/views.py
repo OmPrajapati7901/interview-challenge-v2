@@ -1,8 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, Query, HTTPException
+from fastapi import APIRouter, UploadFile, File, Query, HTTPException, Depends
 import csv
 from sqlalchemy.orm import Session
 from app.models import Business, Symptom, BusinessSymptom
-from app.database import engine 
+from app.database import engine , get_db
 from app.utils import import_csv ,  import_csv_per_record
 import os
 from sqlalchemy import or_
@@ -13,7 +13,7 @@ load_dotenv()
 router = APIRouter()
 
 @router.post("/import-csv")
-async def import_csv_endpoint(file: UploadFile = File(...)):
+async def import_csv_endpoint(file: UploadFile = File(...) , db: Session = Depends(get_db)):
     temp_dir = None
     file_path = None
 
@@ -35,10 +35,10 @@ async def import_csv_endpoint(file: UploadFile = File(...)):
             buffer.write(file.file.read())
 
         # Call the CSV import logic
-        # import_csv(file_path)
+        import_csv(file_path,db)
 
         # if you want rejection specific to record
-        import_csv_per_record(file_path)
+        # import_csv_per_record(file_path,db)
         return {"message": "CSV imported successfully!"}
 
     except FileNotFoundError as fnf_error:
@@ -60,13 +60,15 @@ async def import_csv_endpoint(file: UploadFile = File(...)):
 @router.get("/symptom-data")
 async def get_symptom_data(
     business_id: int = Query(None),
-    symptom_diagnostic: bool = Query(None)
+    symptom_diagnostic: bool = Query(None),
+    db: Session = Depends(get_db),
+
 ):
-    session = Session(bind=engine)
+    # session = Session(bind=engine)
 
     try:
         # Base query joining the three tables
-        query = session.query(
+        query = db.query(
             Business.business_id,
             Business.business_name,
             Symptom.symptom_code,
@@ -96,8 +98,8 @@ async def get_symptom_data(
         raise HTTPException(status_code=500, detail="An error occurred while querying the database.")
     except Exception as e:
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
-    finally:
-        session.close()
+    # finally:
+    #     session.close()
 
     return results
 
